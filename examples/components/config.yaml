@@ -5,9 +5,10 @@ Application:
     Y: 0
     W: 1000
     H: 1000
+    FPS: 60
     ScreenMode: 1
     ClearColor:
       R: 0
       G: 0
       B: 0
-      A: 0
+      A: 1

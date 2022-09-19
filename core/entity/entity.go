@@ -4,9 +4,13 @@ import (
 	"github.com/BadPlan/blitz/core/component"
 	"github.com/BadPlan/blitz/core/utils/id"
 	"github.com/modern-go/reflect2"
+	"sync"
 )
 
-var entities []*Entity
+var (
+	entities []*Entity
+	mu       sync.Mutex
+)
 
 type Entity struct {
 	id         int
@@ -20,7 +24,9 @@ func New(parent *Entity) *Entity {
 		parent:     parent,
 		components: nil,
 	}
+	mu.Lock()
 	entities = append(entities, e)
+	mu.Unlock()
 	return e
 }
 

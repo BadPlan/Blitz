@@ -6,12 +6,17 @@ import (
 	"github.com/BadPlan/blitz/core/component/sprite"
 	"github.com/BadPlan/blitz/core/dependency_tree"
 	"github.com/BadPlan/blitz/core/entity"
+	"github.com/BadPlan/blitz/core/errors"
 	"github.com/BadPlan/blitz/core/sdl2"
+	"github.com/BadPlan/blitz/core/utils/angle"
+	"github.com/BadPlan/blitz/core/utils/fps"
 	"github.com/veandco/go-sdl2/sdl"
 	"log"
+	"time"
 )
 
 type renderSystem struct {
+	prevFrame time.Time
 }
 
 func (rs *renderSystem) OnStart(ctx context.Context) error {
@@ -39,10 +44,16 @@ func (rs *renderSystem) OnStart(ctx context.Context) error {
 		return err
 	}
 	sdl2.Instance.SetRenderer(renderer)
+	rs.prevFrame = time.Now()
 	return nil
 }
 
 func (rs *renderSystem) OnUpdate(ctx context.Context) error {
+	passed := time.Now().Sub(rs.prevFrame)
+	shouldPass := fps.DeltaTime(dependency_tree.Instance.Application.Screen.FPS)
+	if passed < shouldPass {
+		<-time.Tick(shouldPass - passed)
+	}
 	colors := dependency_tree.Instance.Application.Screen.ClearColor
 	renderer := sdl2.Instance.GetRenderer()
 	renderer.SetDrawColor(colors.R, colors.G, colors.B, colors.A)
@@ -52,22 +63,35 @@ func (rs *renderSystem) OnUpdate(ctx context.Context) error {
 		rs.drawSprite(entities[i])
 	}
 	renderer.Present()
+	rs.prevFrame = time.Now()
 	return nil
 }
 
-func (rs *renderSystem) drawSprite(e *entity.Entity) {
+func getSpriteParams(e *entity.Entity) (w, h int32, t *sdl.Texture, err error) {
 	if e.GetComponent(&sprite.Sprite{}) == nil {
+		err = errors.ErrEmptySpriteComponent
 		return
 	}
-	spriteComponent := castToSprite(*e.GetComponent(&sprite.Sprite{}))
+	spriteComponent := castToSprite(e.GetComponent(&sprite.Sprite{}))
 
-	w, h := spriteComponent.GetWidth(), spriteComponent.GetHeight()
-	t := spriteComponent.GetTexture()
+	w, h = spriteComponent.GetWidth(), spriteComponent.GetHeight()
+	t = spriteComponent.GetTexture()
 	if t == nil {
+		err = errors.ErrEmptySpriteComponent
 		return
 	}
-	s := castToSize(*e.GetComponent(&size.Size{}))
+	return w, h, t, nil
+}
+
+func (rs *renderSystem) drawSprite(e *entity.Entity) {
+	w, h, t, err := getSpriteParams(e)
+	if err != nil {
+		log.Println("sprite component is not defined, skip render")
+		return
+	}
+	s := castToSize(e.GetComponent(&size.Size{}))
 	if s == nil {
+		log.Println("size component is not defined, skip render")
 		return
 	}
 	l2w := castToL2W(*GetSystem(&localToWorldSystem{}))
@@ -77,28 +101,32 @@ func (rs *renderSystem) drawSprite(e *entity.Entity) {
 	}
 
 	pos := l2w.PositionByEntityId(e.GetId())
+	if e.GetId() == 1 {
+		log.Println(pos)
+	}
 
 	src := &sdl.Rect{W: w, H: h}
-	dst := &sdl.Rect{X: int32(pos.X), Y: int32(pos.Y), W: int32(s.W), H: int32(s.H)}
-
+	dst := &sdl.Rect{X: int32(pos.X - s.W/2), Y: int32(pos.Y - s.H/2), W: int32(s.W), H: int32(s.H)}
 	renderer := sdl2.Instance.GetRenderer()
-	err := renderer.Copy(t, src, dst)
-	if err != nil {
-		log.Println(err)
-		return
+	rot := getWorldRotation(e)
+	if rot != nil {
+		centerX := dst.W / 2
+		centerY := dst.H / 2
+		if e.GetId() == 1 {
+			log.Printf("centerX = %d, centerY = %d, posX = %d, posY = %d", centerX, centerY, int32(pos.X), int32(pos.Y))
+		}
+		err = renderer.CopyEx(t, src, dst, angle.ToDegrees(rot.Angle), &sdl.Point{X: centerX, Y: centerY}, sdl.FLIP_NONE)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else {
+		err = renderer.Copy(t, src, dst)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
-}
-
-func castToSprite(in interface{}) *sprite.Sprite {
-	return in.(*sprite.Sprite)
-}
-
-func castToL2W(in interface{}) *localToWorldSystem {
-	return in.(*localToWorldSystem)
-}
-
-func castToSize(in interface{}) *size.Size {
-	return in.(*size.Size)
 }
 
 func newRenderSystem() System {

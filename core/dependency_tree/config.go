@@ -16,6 +16,13 @@ type Config struct {
 			ClearColor struct {
 				R, G, B, A uint8
 			}
+			FPS int
+		}
+	}
+	Entities []struct {
+		Parent     int
+		Components []struct {
+			Fields map[string]interface{}
 		}
 	}
 }
