@@ -3,10 +3,7 @@ package main
 import (
 	"context"
 	"github.com/BadPlan/blitz/core"
-	"github.com/BadPlan/blitz/core/component/position"
-	"github.com/BadPlan/blitz/core/component/rotation"
-	"github.com/BadPlan/blitz/core/component/size"
-	"github.com/BadPlan/blitz/core/component/sprite"
+	"github.com/BadPlan/blitz/core/component"
 	"github.com/BadPlan/blitz/core/entity"
 	"log"
 	"math"
@@ -14,12 +11,12 @@ import (
 
 func makeEntities() {
 	player := entity.New(nil)
-	playerSize := &size.Size{W: 100, H: 100}
-	pos := &position.Position{X: 500, Y: 500}
+	playerSize := &component.Size{W: 100, H: 100}
+	pos := &component.Position{X: 500, Y: 500}
 	player.AddComponent(pos)
-	rot := &rotation.Rotation{Angle: math.Pi}
+	rot := &component.Rotation{Angle: math.Pi}
 
-	spriteComponent, err := sprite.NewSprite("../assets/blitz.png")
+	spriteComponent, err := component.NewSprite("../assets/blitz.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -28,28 +25,41 @@ func makeEntities() {
 	player.AddComponent(playerSize)
 
 	ball := entity.New(player)
-	ballSize := &size.Size{W: 20, H: 20}
-	ballPos := &position.Position{X: 50, Y: 10}
-	ballSprite, err := sprite.NewSprite("../assets/ball.png")
+	ballSize := &component.Size{W: 50, H: 50}
+	ballPos := &component.Position{X: 50, Y: 50}
+	ballSprite, err := component.NewSprite("../assets/ball.png")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	ball.AddComponent(ballPos)
 	ball.AddComponent(ballSize)
 	ball.AddComponent(ballSprite)
+	ballRot := &component.Rotation{Angle: 0}
+	ball.AddComponent(ballRot)
 
-	go func(pos *position.Position, rot *rotation.Rotation) {
+	go func(pos *component.Position, rot *component.Rotation, ballRot *component.Rotation) {
+		velocity := 0.000001
 		for {
-			//if pos.X >= 1000 {
-			//	pos.X = 0
-			//}
-			//pos.X += 0.000001
+			if pos.X >= 1900 {
+				pos.X = 1900
+				velocity = -velocity
+			} else if pos.X <= 0 {
+				pos.X = 0
+				velocity = -velocity
+			}
+			pos.X = pos.X + velocity
+
 			rot.Angle += 0.00000001
 			if rot.Angle >= 2*math.Pi {
 				rot.Angle = 0
 			}
+
+			ballRot.Angle += 0.00000001
+			if ballRot.Angle >= 2*math.Pi {
+				ballRot.Angle = 0
+			}
 		}
-	}(pos, rot)
+	}(pos, rot, ballRot)
 }
 
 func main() {

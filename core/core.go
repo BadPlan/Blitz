@@ -24,10 +24,6 @@ func Init() error {
 		log.Println(err)
 		return err
 	}
-	if err != nil {
-		log.Println(err)
-		return err
-	}
 	err = sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		log.Println(err)

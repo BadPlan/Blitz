@@ -1,4 +1,4 @@
-package rotation
+package component
 
 type Rotation struct {
 	Angle float64

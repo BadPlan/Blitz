@@ -1,4 +1,4 @@
-package size
+package component
 
 type Size struct {
 	H, W float64

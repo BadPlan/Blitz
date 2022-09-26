@@ -1,4 +1,4 @@
-package sprite
+package component
 
 import (
 	"github.com/BadPlan/blitz/core/utils/image_loader"

@@ -3,9 +3,9 @@ Application:
   Screen:
     X: 0
     Y: 0
-    W: 1000
-    H: 1000
-    FPS: 60
+    W: 1920
+    H: 1080
+    FPS: 20
     ScreenMode: 1
     ClearColor:
       R: 0
