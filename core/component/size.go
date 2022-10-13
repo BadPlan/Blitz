@@ -1,7 +1,7 @@
 package component
 
 type Size struct {
-	H, W float64
+	H, W int32
 }
 
 func (s *Size) IsComponent() bool {

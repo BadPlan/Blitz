@@ -23,6 +23,7 @@ type (
 		Entities Entities `yaml:"entities"`
 	}
 	Entity struct {
+		Id         *string    `yaml:"id,omitempty"`
 		Components Components `yaml:"components"`
 		Children   Entities   `yaml:"children"`
 	}

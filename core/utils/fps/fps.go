@@ -7,5 +7,8 @@ func DeltaTime(fps int) time.Duration {
 }
 
 func FramesPerSecond(deltaTime time.Duration) int {
+	if deltaTime == 0 {
+		return 0
+	}
 	return int(time.Second.Nanoseconds() / deltaTime.Nanoseconds())
 }

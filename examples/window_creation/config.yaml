@@ -1,13 +1,14 @@
-Application:
-  Name: test
-  Screen:
-    X: 0
-    Y: 0
-    W: 1000
-    H: 1000
-    ScreenMode: 1
-    ClearColor:
-      R: 0
-      G: 0
-      B: 0
-      A: 0
+application:
+  name: window creation example
+  screen:
+    x: 0
+    y: 0
+    w: 1920
+    h: 1080
+    fps: 20
+    screenMode: 1
+    clearColor:
+      r: 0
+      g: 0
+      b: 0
+      a: 1

@@ -50,13 +50,16 @@ func getWorldRotation(e *entity.Entity) *component.Rotation {
 		return cast.CastToRotation(e.GetComponent(&component.Rotation{}))
 	}
 	rot := cast.CastToRotation(parent.GetComponent(&component.Rotation{}))
+	if rot == nil {
+		return &component.Rotation{Angle: 0}
+	}
 	return &component.Rotation{Angle: rot.Angle + cast.CastToRotation(e.GetComponent(&component.Rotation{})).Angle}
 }
 
 func getWorldPosition(e *entity.Entity) *component.Position {
 	parent := e.GetParent()
 	if parent == nil {
-		log.Printf("id %d, nil parent\n", e.GetId())
+		// log.Printf("id %s, nil parent\n", e.GetId())
 		pos := cast.CastToPosition(e.GetComponent(&component.Position{}))
 		if pos == nil {
 			return nil
@@ -72,7 +75,7 @@ func getWorldPosition(e *entity.Entity) *component.Position {
 	if parentSize == nil {
 		parentSize = &component.Size{}
 	}
-	localSize := cast.CastToSize(parent.GetComponent(&component.Size{}))
+	localSize := cast.CastToSize(e.GetComponent(&component.Size{}))
 	if localSize == nil {
 		localSize = &component.Size{}
 	}
@@ -84,12 +87,12 @@ func getWorldPosition(e *entity.Entity) *component.Position {
 	parentRot := cast.CastToRotation(parent.GetComponent(&component.Rotation{}))
 	parentCenter := component.Position{X: posParent.X + parentSize.W/2, Y: posParent.Y + parentSize.H/2}
 	if parentRot != nil {
-		length := math.Sqrt(localPos.X*localPos.X + localPos.Y*localPos.Y)
+		length := math.Sqrt(float64(localPos.X*localPos.X + localPos.Y*localPos.Y))
 		l := component.Position{
-			X: length*math.Cos(parentRot.Angle) - length*math.Sin(parentRot.Angle),
-			Y: length*math.Sin(parentRot.Angle) + length*math.Cos(parentRot.Angle),
+			X: int32(length*math.Cos(parentRot.Angle) - length*math.Sin(parentRot.Angle)),
+			Y: int32(length*math.Sin(parentRot.Angle) + length*math.Cos(parentRot.Angle)),
 		}
 		return &component.Position{X: parentCenter.X + l.X - localSize.W/2, Y: parentCenter.Y + l.Y - localSize.H/2}
 	}
-	return &component.Position{X: localPos.X, Y: localPos.Y}
+	return &component.Position{X: parentCenter.X + localPos.X, Y: parentCenter.Y + localPos.Y}
 }

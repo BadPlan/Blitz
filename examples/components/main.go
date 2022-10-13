@@ -47,7 +47,7 @@ func makeEntities() {
 				pos.X = 0
 				velocity = -velocity
 			}
-			pos.X = pos.X + velocity
+			pos.X = int32(math.Round(float64(pos.X) + velocity))
 
 			rot.Angle += 0.00000001
 			if rot.Angle >= 2*math.Pi {

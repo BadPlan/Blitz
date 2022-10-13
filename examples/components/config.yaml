@@ -1,14 +1,14 @@
-Application:
-  Name: test
-  Screen:
-    X: 0
-    Y: 0
-    W: 1920
-    H: 1080
-    FPS: 20
-    ScreenMode: 1
-    ClearColor:
-      R: 0
-      G: 0
-      B: 0
-      A: 1
+application:
+  name: components usage example
+  screen:
+    x: 0
+    y: 0
+    w: 1920
+    h: 1080
+    fps: 60
+    screenMode: 1
+    clearColor:
+      r: 0
+      g: 0
+      b: 0
+      a: 1

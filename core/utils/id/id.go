@@ -1,16 +1,17 @@
 package id
 
+import "github.com/gofrs/uuid"
+
 var (
-	Channel chan int
+	Channel chan string
 )
 
 func init() {
-	Channel = make(chan int)
+	Channel = make(chan string)
 	go func() {
-		i := 0
 		for {
-			Channel <- i
-			i++
+			str, _ := uuid.NewV4()
+			Channel <- str.String()
 		}
 	}()
 }

@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"github.com/BadPlan/blitz/core/dependency_tree"
+	"github.com/BadPlan/blitz/core/entity"
 	"github.com/BadPlan/blitz/core/sdl2"
 	"github.com/BadPlan/blitz/core/system"
 	"github.com/spf13/viper"
@@ -35,6 +36,7 @@ func Init() error {
 			return err
 		}
 	}
+	entity.NewBatchedEntities(dependency_tree.Instance)
 	return nil
 }
 

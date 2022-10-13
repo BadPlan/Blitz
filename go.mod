@@ -3,6 +3,7 @@ module github.com/BadPlan/blitz
 go 1.19
 
 require (
+	github.com/gofrs/uuid v4.3.0+incompatible
 	github.com/modern-go/reflect2 v1.0.2
 	github.com/spf13/viper v1.13.0
 	github.com/veandco/go-sdl2 v0.4.25
